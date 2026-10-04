@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Олон өнцөгтийн дотоод өнцгийн нийлбэр</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Nunito:wght@400;600;700;800;900&display=swap">
+<style>
+:root{
+  --paper:#f6fcf9; --mint:#e2f6ee; --mint2:#c9eedf; --ink:#10302b; --muted:#4a6a64; --line:#cfe8de; --card:#ffffff;
+  --teal:#0d9488; --teal-d:#0f766e; --teal-dd:#134e4a; --teal-soft:#d5f3ec;
+  --lime:#84cc16; --lime-d:#5f9a0e; --lime-soft:#effbd9;
+  --a1:#e11d48; --a2:#f59e0b; --a3:#2563eb; --vio:#7c3aed;
+  --red:#dc2626; --shadow:0 10px 26px rgba(16,48,43,.13);
+  --hfont:"Unbounded","Nunito",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{color:var(--ink);font-family:"Nunito","Segoe UI",system-ui,sans-serif;font-size:20px;line-height:1.4;overflow:hidden;background-color:var(--paper);
+  background-image:linear-gradient(rgba(13,148,136,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(13,148,136,.08) 1px,transparent 1px);
+  background-size:22px 22px}
+button{font:inherit;cursor:pointer}
+
+/* ===== Header ===== */
+.top{position:fixed;inset:0 0 auto 0;height:64px;display:flex;align-items:center;gap:14px;padding:0 16px;z-index:20;background:#fff;border-bottom:4px solid var(--teal);box-shadow:0 4px 14px rgba(13,148,136,.12)}
+.logo{display:flex;align-items:center;gap:8px;font-family:var(--hfont);font-weight:700;font-size:15px;color:var(--teal-d);white-space:nowrap}
+.logo svg{width:34px;height:40px}
+.stage{flex:1;min-width:0}
+.stage small{display:block;font-size:12px;font-weight:800;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase}
+.stage b{display:block;font-family:var(--hfont);font-weight:700;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--teal-dd)}
+.steps{display:flex;gap:4px}
+.steps span{font-size:13px;font-weight:800;padding:3px 9px;border-radius:20px;background:var(--mint);color:var(--muted);white-space:nowrap}
+.steps span.done{background:var(--lime-soft);color:var(--lime-d)}
+.steps span.on{background:var(--teal);color:#fff}
+.timer{font-family:var(--hfont);font-size:20px;font-variant-numeric:tabular-nums;color:var(--teal-d);background:var(--mint);padding:4px 10px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.timer.warn{color:#c2410c;background:#ffedd5}.timer.over{color:#fff;background:var(--red)}
+.tbtn{border:2px solid var(--line);background:#fff;border-radius:8px;padding:4px 10px;font-weight:800;font-size:16px;color:var(--teal-dd)}
+.tbtn:hover{border-color:var(--teal)}
+
+/* ===== Slides ===== */
+.deck{position:absolute;inset:76px 0 72px 0;z-index:1}
+.slide{position:absolute;inset:0;overflow:hidden;padding:8px clamp(16px,3.5vw,50px) 14px;opacity:0;visibility:hidden;transform:translateX(24px);transition:opacity .35s,transform .35s,visibility .35s}
+.slide.active{opacity:1;visibility:visible;transform:none}
+.inner{max-width:1300px;margin:0 auto;height:100%}
+h2{font-family:var(--hfont);font-weight:700;font-size:clamp(24px,2.6vw,34px);margin:0 0 8px;color:var(--teal-dd);display:flex;align-items:center;gap:10px}
+h3{font-size:21px;margin:0 0 6px;font-weight:900;color:var(--teal-dd)}
+.tag{display:inline-flex;align-items:center;gap:6px;font-family:var(--hfont);font-size:13px;font-weight:700;letter-spacing:1px;color:#fff;background:var(--teal);padding:3px 12px;border-radius:20px;margin-bottom:4px;text-transform:uppercase}
+.tag.l{background:var(--lime);color:#1a2e05}
+.card{background:var(--card);border:2px solid var(--line);box-shadow:var(--shadow);padding:14px 18px;border-radius:14px;position:relative}
+.note{background:#fffef5;border:2px solid #e9e4c4;border-left:8px solid var(--lime);border-radius:10px;padding:12px 16px;
+  background-image:linear-gradient(transparent 29px,#ecebd8 30px);background-size:100% 30px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:none;border-radius:10px;padding:9px 16px;font-weight:800;background:var(--teal);color:#fff;box-shadow:0 4px 0 var(--teal-dd);transition:transform .1s,filter .15s}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--teal-dd)}
+.btn[disabled]{opacity:.45;cursor:default}
+.btn.lime{background:var(--lime);color:#1a2e05;box-shadow:0 4px 0 var(--lime-d)}
+.btn.ghost{background:#fff;color:var(--ink);border:2px solid var(--line);box-shadow:none}
+.btn.ghost.on{background:var(--teal-soft);border-color:var(--teal);color:var(--teal-dd)}
+.btn.sm{padding:6px 12px;font-size:16px}
+.muted{color:var(--muted)}
+.def{padding:8px 12px;margin:6px 0;background:var(--teal-soft);border-left:5px solid var(--teal);border-radius:6px}
+.def.l{background:var(--lime-soft);border-color:var(--lime)}
+.formula{font-family:var(--hfont);font-weight:700;font-size:30px;text-align:center;padding:10px;background:var(--teal-dd);color:#d9f99d;margin:8px 0;border-radius:12px;letter-spacing:.5px}
+.feedback{font-size:19px;font-weight:800;min-height:26px;margin-top:6px}
+.feedback.ok{color:var(--lime-d)}.feedback.no{color:var(--red)}
+.ans{display:none}.ans.show{display:block}
+.inp{width:90px;font:inherit;font-weight:800;font-size:21px;text-align:center;border:2px solid var(--line);border-radius:8px;padding:2px 4px;background:#fff;color:var(--ink)}
+.inp.ok{border-color:var(--lime);background:var(--lime-soft)}.inp.no{border-color:var(--red);background:#ffe9ec}
+.a1{color:var(--a1)}.a2{color:#c27803}.a3{color:var(--a3)}
+
+/* ===== Nav ===== */
+.nav{position:fixed;inset:auto 0 0 0;height:66px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;z-index:20;gap:10px;background:#fff;border-top:4px solid var(--lime)}
+.dots{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.dot{width:38px;height:38px;border-radius:50% 50% 50% 50%/40% 40% 60% 60%;border:2px solid var(--line);background:#fff;color:var(--muted);font-weight:900;font-size:15px;transition:.2s}
+.dot.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+.dot.done{background:var(--lime-soft);border-color:var(--lime);color:var(--lime-d)}
+.tnotes{position:fixed;right:18px;bottom:78px;width:min(440px,calc(100vw - 36px));background:#fffef5;border:2px solid var(--lime);border-radius:12px;padding:14px 18px;font-size:16px;box-shadow:var(--shadow);z-index:25;display:none;max-height:calc(100vh - 170px);overflow:auto}
+.tnotes.show{display:block}
+.tnotes h4{margin:0 0 6px;font-size:17px;color:var(--teal-dd)}
+.tnotes ul{margin:0;padding-left:20px}
+.tnotes li{margin:3px 0}
+
+/* ===== Intro ===== */
+.intro{display:flex;align-items:center;justify-content:center;height:100%}
+.labcard{max-width:1000px;width:100%;background:#fff;border-radius:24px;border:3px solid var(--teal);box-shadow:0 20px 50px rgba(13,148,136,.22);display:grid;grid-template-columns:260px 1fr;overflow:hidden}
+.labcard .side{background:linear-gradient(180deg,var(--teal),var(--teal-dd));display:flex;align-items:center;justify-content:center;padding:20px}
+.labcard .side svg{width:100%;max-height:calc(100vh - 260px)}
+.labcard .main{padding:30px 34px;background-image:linear-gradient(rgba(13,148,136,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(13,148,136,.08) 1px,transparent 1px);background-size:22px 22px}
+.school{font-weight:900;font-size:22px;color:var(--teal-d)}
+.subject{font-family:var(--hfont);font-weight:800;font-size:clamp(44px,5.6vw,76px);line-height:1.05;color:var(--teal-dd);margin:8px 0}
+.topic{font-family:var(--hfont);font-weight:700;font-size:clamp(22px,2.6vw,34px);color:#fff;background:var(--lime-d);display:inline-block;padding:8px 18px;border-radius:12px;line-height:1.25}
+.teacher{margin-top:18px;font-size:24px;font-weight:900;color:var(--ink)}
+.labno{margin-top:8px;font-size:17px;color:var(--muted);font-weight:700}
+
+/* ===== Canvas boxes ===== */
+.cbox{background:#fff;border:2px solid var(--line);box-shadow:var(--shadow);overflow:hidden;border-radius:14px}
+.cbox canvas{display:block;width:100%;height:auto;max-height:calc(100vh - 300px);object-fit:contain;background:#fbfffd;touch-action:none}
+.cbox .ctrl{display:flex;gap:8px;flex-wrap:wrap;padding:8px 12px;background:var(--mint);justify-content:center;align-items:center;border-top:2px solid var(--line)}
+.cbox .ctrl label{font-weight:800;font-size:17px}
+input[type=range]{accent-color:var(--teal)}
+.vis svg{width:100%;height:auto;display:block;max-height:calc(100vh - 360px)}
+.stat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0}
+.stat div{background:var(--mint);border-radius:10px;padding:6px;text-align:center;font-size:15px;font-weight:800;color:var(--muted)}
+.stat b{display:block;font-family:var(--hfont);font-size:26px;color:var(--teal-dd)}
+.ltable{width:100%;border-collapse:collapse;font-size:18px;background:#fff}
+.ltable th{background:var(--teal);color:#fff;padding:6px 8px;font-weight:800;text-align:center}
+.ltable td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:center;font-weight:700}
+.ltable tr:nth-child(even) td{background:#f4fbf8}
+.ltable .inp{width:80px;font-size:19px}
+.plus{color:var(--lime-d);font-weight:900;font-size:15px;opacity:0;transition:.4s}
+.plus.show{opacity:1}
+
+/* Votes / predictions */
+.pred{display:grid;grid-template-columns:110px 1fr 120px;gap:10px;align-items:center;margin:8px 0}
+.pred svg{width:100px;height:80px}
+.pred .v{font-family:var(--hfont);font-size:28px;color:var(--teal-dd);text-align:right}
+.pred input{width:100%}
+.vote{display:grid;grid-template-columns:110px 1fr 46px;gap:8px;align-items:center;margin:6px 0}
+.vote .bar{height:30px;background:var(--mint);border-radius:8px;overflow:hidden}
+.vote .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--lime));transition:width .3s}
+.vote b{font-family:var(--hfont);font-size:20px;text-align:center}
+.opts{display:flex;gap:8px;flex-wrap:wrap}
+.opts button{border:2px solid var(--line);background:#fff;border-radius:10px;padding:7px 14px;font-weight:800;font-size:18px}
+.opts button.ok{border-color:var(--lime);background:var(--lime-soft)}
+.opts button.no{border-color:var(--red);background:#ffe9ec}
+.tabs{display:flex;gap:8px;margin-bottom:8px}
+.pane{display:none}.pane.on{display:block}
+.mc{margin:6px 0;padding:8px 12px;background:#fff;border:2px solid var(--line);border-radius:12px}
+.mc .q{font-weight:800;margin-bottom:5px}
+.frames .fr{display:flex;align-items:baseline;gap:8px;margin:6px 0;font-weight:800;font-size:18px;flex-wrap:wrap}
+.frames .fr div[contenteditable]{flex:1;min-width:200px;border-bottom:2px dashed var(--teal);outline:none;padding:2px 6px;font-weight:600;color:var(--teal-dd)}
+.frames .fr div[contenteditable]:empty::before{content:attr(data-ph);color:#9db8b0}
+.stars3{display:flex;gap:10px}
+.stars3 button{font-size:36px;border:none;background:none;filter:grayscale(1);opacity:.4;transition:.2s}
+.stars3 button.on{filter:none;opacity:1;transform:scale(1.1)}
+.mach{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-family:var(--hfont);font-size:22px}
+.gear{display:inline-block;font-size:34px;transition:transform .8s}
+.gear.spin{transform:rotate(360deg)}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+
+@media (max-height:900px){
+  body{font-size:18px}
+  h2{font-size:26px;margin-bottom:6px}
+  h3{font-size:19px}
+  .card{padding:10px 14px}
+  .def{padding:6px 10px;margin:5px 0}
+  .formula{font-size:24px;padding:6px;margin:6px 0}
+  .stat b{font-size:21px}
+  .ltable{font-size:17px}.ltable td{padding:3px 6px}.ltable th{padding:4px 6px}
+  .ltable .inp{font-size:17px;width:70px}
+  .pred{margin:4px 0}.pred svg{height:62px}
+  .vote{margin:4px 0}.vote .bar{height:24px}
+  .mc{padding:6px 10px;margin:5px 0}
+  .feedback{font-size:18px}
+  .subject{font-size:56px}
+  .teacher{font-size:21px;margin-top:12px}
+}
+@media (max-width:1000px){
+  .steps{display:none}
+  .grid2{grid-template-columns:1fr !important}
+  .dots{display:none}
+  .labcard{grid-template-columns:1fr}.labcard .side{display:none}
+  .slide{overflow:auto}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="logo"><svg viewBox="0 0 34 40"><path d="M12 2h10M14 2v12L4 34a3 3 0 0 0 3 4h20a3 3 0 0 0 3-4L20 14V2" fill="#e2f6ee" stroke="#0d9488" stroke-width="2.4" stroke-linejoin="round"/><path d="M8 27h18l3 7a2 2 0 0 1-2 3H7a2 2 0 0 1-2-3z" fill="#84cc16"/><circle cx="14" cy="31" r="1.8" fill="#fff"/><circle cx="20" cy="29" r="1.3" fill="#fff"/></svg>Судлаачийн<br>лаборатори</div>
+  <div class="stage"><small id="sheetNo">Алхам 1/9</small><b id="stageName"></b></div>
+  <div class="steps" id="steps"><span>❓ Асуулт</span><span>💭 Таамаглал</span><span>🧪 Туршилт</span><span>📊 Өгөгдөл</span><span>💡 Дүгнэлт</span><span>🛠️ Хэрэглээ</span><span>📋 Тайлан</span></div>
+  <div class="timer" id="timer" title="Хичээлийн үлдсэн хугацаа (2 удаа дарвал 40:00 болно)">⏱ <span id="tval">40:00</span></div>
+  <button class="tbtn" id="tPlay" title="Цаг эхлүүлэх / зогсоох">▶</button>
+  <button class="tbtn" id="notesBtn" title="Багшийн тэмдэглэл (N)">📝</button>
+  <button class="tbtn" id="fsBtn" title="Бүтэн дэлгэц (F)">⛶</button>
+</header>
+
+<main class="deck">
+
+<!-- 0. Танилцуулга -->
+<section class="slide" data-name="Танилцуулга" data-min="1" data-step="-1"
+  data-notes="Мэндчилээд өнөөдөр бид бүгд жинхэнэ судлаач болно гэж хэлнэ.|Хичээлийн бүтэц — судалгааны мөчлөг: Асуулт → Таамаглал → Туршилт 1, 2 → Өгөгдөл ба зүй тогтол → Дүгнэлт → Хэрэглээ → Лабораторийн тайлан.|▶ товчоор 40 минутын цагийг эхлүүлнэ. N — тэмдэглэл, F — бүтэн дэлгэц.">
+  <div class="inner intro">
+    <div class="labcard">
+      <div class="side">
+        <svg viewBox="0 0 220 300">
+          <g stroke="#fff" stroke-width="5" stroke-linejoin="round" fill="none">
+            <path d="M85 20h50M92 20v80L40 240a14 14 0 0 0 13 20h114a14 14 0 0 0 13-20L128 100V20"/>
+          </g>
+          <path d="M62 190h96l22 50a14 14 0 0 1-13 20H53a14 14 0 0 1-13-20z" fill="#bef264"/>
+          <polygon points="110,200 140,244 80,244" fill="#0f766e" stroke="#fff" stroke-width="3"/>
+          <circle cx="78" cy="170" r="7" fill="#d9f99d"/><circle cx="130" cy="150" r="5" fill="#d9f99d"/><circle cx="104" cy="125" r="4" fill="#d9f99d"/>
+          <polygon points="160,40 200,60 190,100 150,96 140,62" fill="none" stroke="#d9f99d" stroke-width="3"/>
+          <polygon points="20,60 52,52 60,86 28,96" fill="none" stroke="#d9f99d" stroke-width="3"/>
+        </svg>
+      </div>
+      <div class="main">
+        <div class="school">🏫 1-р сургууль · 5-р анги</div>
+        <div class="subject">Математик</div>
+        <div class="topic">Олон өнцөгтийн дотоод<br>өнцгийн нийлбэр</div>
+        <div class="teacher">👩‍🏫 Багш: В. Гэрэлтуяа</div>
+        <div class="labno">🔬 Судлаачийн лаборатори · Сурах бичиг 48–49-р тал</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 1. Асуулт -->
+<section class="slide" data-name="Судалгааны асуулт" data-min="3" data-step="0"
+  data-notes="Сурах бичгийн 48-р тал: хоёр тэгш өнцгийг орой ба нэг талаар нь нийлүүлэхэд дэлгэмэл өнцөг үүснэ: 90° + 90° = 180°.|Гулсуураар цацрагийг эргүүлж ∠1, ∠2 өөрчлөгдөхийг үзүүлнэ. Асуулт: «∠1 томрох үед ∠2 яах вэ? Нийлбэр нь яагаад үргэлж 180° вэ?»|«90° + 90°» товч — сурах бичгийн жишээ. Энэ мэдлэг Туршилт 1-д хэрэг болно.|Дараа нь судалгааны асуултыг чангаар уншуулна.">
+  <div class="inner">
+    <span class="tag">❓ Асуулт</span>
+    <h2>🔬 Өнөөдрийн судалгааны асуулт</h2>
+    <div class="grid2" style="grid-template-columns:.9fr 1.1fr;align-items:start">
+      <div>
+        <div class="note" style="font-size:21px;font-weight:700;line-height:30px">
+          📓 Олон өнцөгтийн <b>дотоод өнцгүүдийн нийлбэр</b> хэдэн градус вэ?<br>
+          📓 Өнцгийн тоо нэмэгдэхэд нийлбэр <b>яаж</b> өөрчлөгдөх вэ?<br>
+          📓 Үүнийг <b>хэмжилгүйгээр</b> олох арга бий юу?
+        </div>
+        <div class="def l" style="margin-top:12px">🧰 <b>Багаж:</b> өнгийн цаас, шугам, хайч, транспортир — бас бидний толгой! 🧠</div>
+        <div class="def">🔑 <b>Дэлгэмэл өнцөг</b> — шулуун шугам үүсгэсэн өнцөг. Хэмжээ нь <b>180°</b>.</div>
+      </div>
+      <div class="card vis">
+        <h3>🔎 Бэлтгэл туршилт: дэлгэмэл өнцөг</h3>
+        <svg id="sSvg" viewBox="0 0 520 260"></svg>
+        <div class="row" style="justify-content:center">
+          <label style="font-weight:800">Цацраг:</label><input type="range" id="sR" min="10" max="170" value="60" style="flex:1;max-width:260px">
+          <button class="btn lime sm" id="s90">90° + 90°</button>
+        </div>
+        <div class="feedback ok" id="sFb" style="text-align:center"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. Таамаглал -->
+<section class="slide" data-name="Таамаглал дэвшүүлье" data-min="4" data-step="1"
+  data-notes="Гурвалжны нийлбэр 180° гэдгийг зарим хүүхэд мэдэж магадгүй — гэхдээ ДӨРВӨН, ТАВАН өнцөгтийн хувьд таамаглуулна. Зөв хариуг одоо хэлэхгүй!|Хүүхэд бүр дэвтэртээ таамаглалаа бичнэ. Нэг сурагч гулсуураар ангийн таамаглалыг тавиад 📌 дарна — дүгнэлтийн хуудсанд харьцуулна.|Ангийн санал: гараа өргүүлж, сонголт бүр дээр хүний тоогоор дарна (−1 товчоор засна).|Асуулт: «Яагаад тэгж бодсон бэ?» — таамаглалыг үндэслэлтэй хэлүүлнэ.">
+  <div class="inner">
+    <span class="tag">💭 Таамаглал</span>
+    <h2>💭 Таамаглал: нийлбэр хэд байх бол?</h2>
+    <div class="grid2" style="grid-template-columns:1.05fr .95fr;align-items:start">
+      <div class="card">
+        <h3>🎚️ Гулсуураар таамаглалаа тавь</h3>
+        <div class="pred"><svg viewBox="0 0 100 80"><polygon points="12,66 30,12 84,18 90,70" fill="#d5f3ec" stroke="#0d9488" stroke-width="3"/></svg>
+          <div><b>Дөрвөн өнцөгт</b><input type="range" id="p4" min="180" max="900" step="10" value="300"></div><div class="v" id="p4v">300°</div></div>
+        <div class="pred"><svg viewBox="0 0 100 80"><polygon points="50,6 92,34 76,74 22,74 8,34" fill="#effbd9" stroke="#5f9a0e" stroke-width="3"/></svg>
+          <div><b>Таван өнцөгт</b><input type="range" id="p5" min="180" max="900" step="10" value="400"></div><div class="v" id="p5v">400°</div></div>
+        <div class="row"><button class="btn" id="pSave">📌 Таамаглал бүртгэх</button><span class="muted" id="pSaved" style="font-weight:700"></span></div>
+        <div class="def l" style="margin-top:8px;font-size:17px">💡 Сэжүүр: гурвалжны 3 өнцөг нийлээд хэд болдгийг санаж байна уу? Дөрвөн өнцөгт гурвалжнаас «том» юу?</div>
+      </div>
+      <div class="card">
+        <h3>🙋 Ангийн санал: дөрвөн өнцөгт = ?</h3>
+        <div id="votes"></div>
+        <div class="row" style="margin-top:6px"><button class="btn ghost sm" id="vReset">↺ Шинээр</button><span class="muted" id="vTot" style="font-weight:800"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. Туршилт 1 -->
+<section class="slide" data-name="Туршилт 1: Гурвалжны булангуудыг урж нийлүүлье" data-min="6" data-step="2"
+  data-notes="Сурах бичгийн 228-р даалгавар (48-р тал): цаасан гурвалжны 3 өнцгийг хайчилж, оройгоор нь нэг цэгт нийлүүлж наана. Боломжтой бол ангиараа цаасаар хийгээд дараа нь дэлгэцэн дээр шалгана.|Оройнуудыг чирж хурц, тэгш, мохоо гурвалжин үүсгэнэ (227-р даалгавар). Ямар ч гурвалжинд ✂️ дарахад 3 булан дэлгэмэл өнцөг болж нийлнэ.|Дүгнэлт: гурвалжны дотоод өнцгийн нийлбэр 180°.|Баруун талын даалгавар — 229-р даалгавар: хоёр өнцөг мэдэгдэж байвал гурав дахь = 180° − (∠1 + ∠2). Сурах бичгийн жишээ: 50°, 30° → 100°; 30°, 85° → 65°; 45°, 90° → 45°.">
+  <div class="inner">
+    <span class="tag">🧪 Туршилт 1</span>
+    <h2>✂️ Гурвалжны 3 буланг урж, нэг цэгт нийлүүлье</h2>
+    <div class="grid2" style="grid-template-columns:1.3fr .7fr;align-items:start">
+      <div class="cbox">
+        <canvas id="tri" width="900" height="500"></canvas>
+        <div class="ctrl">
+          <button class="btn ghost sm" data-tt="0">🔺 Хурц</button><button class="btn ghost sm" data-tt="1">📐 Тэгш</button><button class="btn ghost sm" data-tt="2">🔻 Мохоо</button>
+          <button class="btn lime sm" id="tTear">✂️ Булангуудыг урах</button><button class="btn ghost sm" id="tBack">↺</button>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div style="font-size:17px">👆 Оройг <b>чирж</b> гурвалжны хэлбэрийг өөрчил.</div>
+          <div class="stat"><div class="a1">∠1<b id="tA" style="color:var(--a1)">?</b></div><div class="a2">∠2<b id="tB" style="color:#c27803">?</b></div><div class="a3">∠3<b id="tC" style="color:var(--a3)">?</b></div></div>
+          <div class="feedback ok" id="tFb" style="font-size:18px"></div>
+        </div>
+        <div class="card" style="margin-top:10px">
+          <h3>🧮 Үл мэдэгдэх өнцөг (229)</h3>
+          <div id="mQ" style="font-weight:800;font-size:19px"></div>
+          <div class="row" style="margin-top:4px">∠3 = <input class="inp" id="mIn" inputmode="numeric">° <button class="btn sm" id="mChk">✓</button><button class="btn ghost sm" id="mNew">🎲</button></div>
+          <div class="feedback" id="mFb" style="font-size:17px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. Туршилт 2 -->
+<section class="slide" data-name="Туршилт 2: Диагональ татаж гурвалжинд хуваая" data-min="7" data-step="2"
+  data-notes="Сурах бичгийн 49-р тал (236): дөрвөн өнцөгтөд нэг диагональ татахад хоёр гурвалжин үүснэ → 180° + 180° = 360°.|Алхам: өнцгийн тоог сонгох → нэг оройг ДАРЖ сонгох (ногоон болно) → «📏 Диагональ татах» → гурвалжныг тоолох → «➕ Тэмдэглэх».|Оройг чирж хэлбэрийг өөрчилж болно — нийлбэр өөрчлөгдөхгүйг харуулна. Гүдгэр бус (дотогш хонхойсон) болбол анхааруулга гарна.|3-аас 8 хүртэлх бүх олон өнцөгтийг туршиж хүснэгтийг дүүргэнэ. Асуулт: «Гурвалжны тоо өнцгийн тооноос хэдээр бага вэ?»">
+  <div class="inner">
+    <span class="tag">🧪 Туршилт 2</span>
+    <h2>📏 Нэг оройгоос диагональ татаж, гурвалжин тоолъё</h2>
+    <div class="grid2" style="grid-template-columns:1.3fr .7fr;align-items:start">
+      <div class="cbox">
+        <canvas id="poly" width="900" height="520"></canvas>
+        <div class="ctrl">
+          <label>n =</label><span id="nBtns" class="row" style="gap:5px"></span>
+          <button class="btn lime sm" id="dGo">📏 Диагональ татах</button>
+          <button class="btn sm" id="dRec" disabled>➕ Тэмдэглэх</button>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="stat"><div>Өнцөг<b id="dN">4</b></div><div>Гурвалжин<b id="dT">?</b></div><div>Нийлбэр<b id="dS" style="font-size:22px">?</b></div></div>
+          <div id="dMsg" style="font-size:17px;font-weight:700;min-height:48px"></div>
+        </div>
+        <div class="card" style="margin-top:10px;padding:10px 12px">
+          <h3>📓 Лабораторийн тэмдэглэл</h3>
+          <table class="ltable"><thead><tr><th>n</th><th>гурвалжны тоо</th><th>нийлбэр</th></tr></thead><tbody id="dTab"></tbody></table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. Өгөгдөл ба зүй тогтол -->
+<section class="slide" data-name="Өгөгдөл ба зүй тогтол" data-min="6" data-step="3"
+  data-notes="Хүснэгтийг ангиараа бөглөнө. ⭐ Туслалцаа хэрэгтэй бол «📥 Туршилтын өгөгдөл» товч Туршилт 2-ын тэмдэглэлийг хуулна.|Хариу: гурвалжин 1, 2, 3, 4, 5, 6; нийлбэр 180°, 360°, 540°, 720°, 900°, 1080°.|Зүй тогтол: өнцөг 1-ээр нэмэгдэхэд нийлбэр 180°-аар нэмэгдэнэ; гурвалжны тоо = n − 2.|Дүрмийг сонгуулахдаа: «n = 4 үед n × 180° = 720° гарна — тэнцэх үү?» гэж шалгуулна.">
+  <div class="inner">
+    <span class="tag">📊 Өгөгдөл</span>
+    <h2>📊 Өгөгдлөө цэгцэлж, зүй тогтол олъё</h2>
+    <div class="grid2" style="grid-template-columns:1.1fr .9fr;align-items:start">
+      <div class="card" style="padding:10px 14px">
+        <table class="ltable" id="gTab"><thead><tr><th>Дүрс</th><th>n</th><th>гурвалжин</th><th>нийлбэр (°)</th><th></th></tr></thead><tbody></tbody></table>
+        <div class="row" style="margin-top:8px"><button class="btn" id="gChk">✓ Шалгах</button><button class="btn ghost sm" id="gFill">📥 Туршилтын өгөгдөл ⭐</button></div>
+        <div class="feedback" id="gFb"></div>
+      </div>
+      <div class="card">
+        <h3>🔍 Ямар зүй тогтол байна?</h3>
+        <div style="font-size:18px;margin-bottom:6px">1) Гурвалжны тоо өнцгийн тооноос хэдээр бага вэ?</div>
+        <div class="opts" id="o1"><button data-v="0">1-ээр</button><button data-v="1">2-оор</button><button data-v="0">3-аар</button></div>
+        <div style="font-size:18px;margin:10px 0 6px">2) n өнцөгтийн дотоод өнцгийн нийлбэр:</div>
+        <div class="opts" id="o2"><button data-v="0">n × 180°</button><button data-v="1">(n − 2) × 180°</button><button data-v="0">n × 90°</button><button data-v="0">(n − 1) × 180°</button></div>
+        <div class="feedback" id="oFb"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. Дүгнэлт -->
+<section class="slide" data-name="Дүгнэлт: дүрэм" data-min="3" data-step="4"
+  data-notes="Дүрмийг ангиараа чангаар уншуулж дэвтэрт бичүүлнэ.|Таамаглалтай харьцуулна: «Хэний таамаглал ойр байв?» — судлаачид таамаглал буруу байсан ч туршилтаар үнэнийг олдог.|234-р даалгавар: тэгш өнцөгтийн нийлбэр 90° + 90° + 90° + 90° = 360° — дүрэмтэй тохирно.|Дүрмийн машин: хүүхдүүдээс n-ийг хэлүүлж (жишээ нь 10, 12, 20) нийлбэрийг эхлээд амаар бодуулаад машинаар шалгана. n = 10 → 1440°, n = 12 → 1800°, n = 20 → 3240°.">
+  <div class="inner">
+    <span class="tag l">💡 Дүгнэлт</span>
+    <h2>💡 Судалгааны дүгнэлт</h2>
+    <div class="grid2" style="grid-template-columns:1.1fr .9fr;align-items:start">
+      <div class="card">
+        <div class="def">🔺 Гурвалжны дотоод өнцгүүдийн нийлбэр <b>180°</b>.</div>
+        <div class="def">◻️ Дөрвөн өнцөгтийн дотоод өнцгүүдийн нийлбэр <b>180° + 180° = 360°</b>.</div>
+        <div class="def l">📏 n өнцөгтийг нэг оройгоос татсан диагоналиар <b>n − 2</b> гурвалжинд хуваана.</div>
+        <div class="formula">Нийлбэр = (n − 2) × 180°</div>
+        <div id="cmp" style="font-size:18px;font-weight:700"></div>
+      </div>
+      <div class="card">
+        <h3>⚙️ Дүрмийн машин</h3>
+        <div class="mach">n = <input class="inp" id="rN" inputmode="numeric" value="6"> <button class="btn sm" id="rGo">⚙️ Ажиллуулах</button><span class="gear" id="gear">⚙️</span></div>
+        <div id="rOut" style="font-family:var(--hfont);font-size:22px;margin-top:10px;color:var(--teal-dd);min-height:70px"></div>
+        <div class="def l" style="font-size:17px">🧩 Шалгалт (234): тэгш өнцөгт → 90° + 90° + 90° + 90° = <b>360°</b> = (4 − 2) × 180° ✔</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. Хэрэглээ -->
+<section class="slide" data-name="Хэрэглээ: дүрмээ ашиглая" data-min="6" data-step="5"
+  data-notes="Түвшнээ сонгуулна: ⭐ — дөрвөн өнцөгтийн үл мэдэгдэх өнцөг (360° − бусад); ⭐⭐ — сурах бичгийн 230, 231, 232; ⭐⭐⭐ — зөв олон өнцөгтийн нэг өнцөг.|230: 90° + 30° + ? = 180° → 60°. 231: (180° − 40°) : 2 = 70°, 70°. 232: 90 + 48 + 45 = 183° ≠ 180° → болохгүй.|⭐⭐⭐: зөв олон өнцөгтийн бүх өнцөг тэнцүү → нэг өнцөг = (n − 2) × 180° : n. 5→108°, 6→120°, 8→135°, 9→140°, 10→144°, 12→150°. Нийлбэр 1260° → 1260 : 180 = 7 → n = 9.|Зураг масштабгүй — өнцгийг хэмжихгүй, бодно!">
+  <div class="inner">
+    <span class="tag">🛠️ Хэрэглээ</span>
+    <h2>🛠️ Дүрмээ ашиглаж бодъё</h2>
+    <div class="tabs"><button class="btn ghost on" data-tab="0">⭐ Эхлэгч</button><button class="btn ghost" data-tab="1">⭐⭐ Судлаач</button><button class="btn ghost" data-tab="2">⭐⭐⭐ Эрдэмтэн</button></div>
+    <div class="pane on" data-pane="0">
+      <div class="grid2" style="grid-template-columns:1fr 1fr;align-items:center">
+        <div class="card vis"><svg id="qSvg" viewBox="0 0 460 300"></svg></div>
+        <div class="card">
+          <h3>Дөрвөн өнцөгтийн үл мэдэгдэх өнцгийг ол</h3>
+          <div class="def l" style="font-size:17px">Дөрвөн өнцөгт → нийлбэр <b>360°</b>. ? = 360° − (бусад гурав)</div>
+          <div class="row" style="font-size:22px;font-weight:800">? = <input class="inp" id="qIn" inputmode="numeric">° <button class="btn sm" id="qChk">✓</button><button class="btn ghost sm" id="qNew">🎲 Шинэ</button></div>
+          <div class="feedback" id="qFb"></div>
+          <div class="muted" style="font-size:16px">Зөв: <b id="qScore">0</b> 🧪</div>
+        </div>
+      </div>
+    </div>
+    <div class="pane" data-pane="1">
+      <div class="grid2" style="grid-template-columns:1fr 1fr;align-items:start">
+        <div class="card">
+          <div class="mc"><div class="q">230. Тэгш өнцөгт гурвалжны нэг хурц өнцөг 30°. Нөгөө хурц өнцөг хэд вэ?</div>
+            <div class="row"><input class="inp" id="b1" inputmode="numeric">° <button class="btn sm" data-chk="b1" data-a="60">✓</button><span class="feedback" id="b1f" style="margin:0"></span></div></div>
+          <div class="mc"><div class="q">231. Адил хажуут гурвалжны оройн өнцөг 40°. Бусад хоёр өнцөг тус бүр хэд вэ?</div>
+            <div class="row"><input class="inp" id="b2" inputmode="numeric">° <button class="btn sm" data-chk="b2" data-a="70">✓</button><span class="feedback" id="b2f" style="margin:0"></span></div></div>
+        </div>
+        <div class="card">
+          <div class="mc"><div class="q">232. Гурвалжны өнцгүүд 90°, 48°, 45° байж болох уу?</div>
+            <div class="opts" id="b3"><button data-v="0">Болно</button><button data-v="1">Болохгүй</button></div>
+            <div class="feedback" id="b3f" style="font-size:17px"></div></div>
+          <div class="def" style="font-size:17px">🧠 Гурвалжинд 180°, дөрвөн өнцөгтөд 360° — эхлээд аль дүрс болохыг хар!</div>
+        </div>
+      </div>
+    </div>
+    <div class="pane" data-pane="2">
+      <div class="grid2" style="grid-template-columns:.9fr 1.1fr;align-items:start">
+        <div class="card vis"><svg id="rSvg" viewBox="0 0 300 260"></svg></div>
+        <div class="card">
+          <h3>Зөв олон өнцөгт: бүх тал, бүх өнцөг тэнцүү</h3>
+          <div id="rQ" style="font-size:20px;font-weight:800"></div>
+          <div class="row" style="font-size:22px;font-weight:800;margin-top:4px">Нэг өнцөг = <input class="inp" id="rIn" inputmode="numeric">° <button class="btn sm" id="rChk">✓</button><button class="btn ghost sm" id="rNew">🎲</button><button class="btn ghost sm" id="rHint">💡</button></div>
+          <div class="feedback" id="rFb" style="font-size:17px"></div>
+          <div class="ans def l" id="rH" style="font-size:16px">1) Нийлбэр = (n − 2) × 180°. 2) Бүх өнцөг тэнцүү → нийлбэрийг n-д хуваа.</div>
+          <div class="mc" style="margin-top:6px"><div class="q">🧩 Олон өнцөгтийн нийлбэр 1260° бол хэдэн өнцөгт вэ?</div>
+            <div class="row">n = <input class="inp" id="b4" inputmode="numeric"> <button class="btn sm" data-chk="b4" data-a="9">✓</button><span class="feedback" id="b4f" style="margin:0"></span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. Тайлан -->
+<section class="slide" data-name="Лабораторийн тайлан ба гэрийн даалгавар" data-min="4" data-step="6"
+  data-notes="Гарах шалгалт — хүүхэд бүр дэвтэртээ хариугаа бичээд дараа нь дэлгэцэн дээр шалгана. 1, 2-р асуулт 50-р талын «Өөрийгөө сорих - 2»-ын 6, 11-р даалгавраас.|Хариу: 1) 540°; 2) Болохгүй (28 + 75 + 80 = 183°); 3) 4 гурвалжин; 4) 60°.|Тайлангийн өгүүлбэрийг гүйцээж, одоор өөрийгөө үнэлнэ.|Гэрийн даалгавар: 233, 235/237-р даалгавар (49-р тал) + зургаан өнцөгт зурж нийлбэрийг ол.">
+  <div class="inner">
+    <span class="tag l">📋 Тайлан</span>
+    <h2>📋 Лабораторийн тайлан</h2>
+    <div class="grid2" style="grid-template-columns:1.1fr .9fr;align-items:start">
+      <div class="card" style="padding:8px 12px">
+        <div id="exit"></div>
+        <div class="feedback" id="exFb" style="margin-top:2px"></div>
+      </div>
+      <div>
+        <div class="card frames" style="padding:8px 14px">
+          <div class="fr">Би олж мэдсэн: <div contenteditable="true" data-k="m_pa_f1" data-ph="n өнцөгтийн нийлбэр = …"></div></div>
+          <div class="fr">Миний таамаглал <div contenteditable="true" data-k="m_pa_f2" data-ph="зөв / буруу байсан, учир нь…"></div></div>
+          <div class="row" style="justify-content:space-between"><b>⭐ Өөрийн үнэлгээ:</b><div class="stars3" id="stars3"><button>⭐</button><button>⭐</button><button>⭐</button></div></div>
+        </div>
+        <div class="def l" style="font-size:17px;margin-top:8px">🏠 <b>Гэрийн даалгавар:</b> Сурах бичгийн 49-р талын <b>233, 237</b>-р даалгавар (дурын дөрвөн өнцөгт зурж, өнцгийг хэмжиж нийлбэрийг ол). ⭐⭐⭐ Зургаан өнцөгт зурж, нэг оройгоос диагональ татаад нийлбэрийг ол.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<nav class="nav">
+  <button class="btn" id="prevBtn">◀ Өмнөх</button>
+  <div class="dots" id="dots"></div>
+  <button class="btn" id="nextBtn">Дараах ▶</button>
+</nav>
+<div class="tnotes" id="tnotes"><h4>📝 Багшид зориулсан зөвлөмж</h4><ul id="tnList"></ul></div>
+<canvas id="confetti"></canvas>
+
+<script>
+/* ---------- Helpers ---------- */
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const $=id=>document.getElementById(id);
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const ri=(a,b)=>Math.floor(rnd(a,b+1));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const ease=k=>k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+const SVGNS='http://www.w3.org/2000/svg';
+const D2R=Math.PI/180;
+function el(tag,attrs,parent,text){const e=document.createElementNS(SVGNS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(text!=null)e.textContent=text;if(parent)parent.appendChild(e);return e}
+function cPos(cv,e,W,H){const r=cv.getBoundingClientRect(),sc=Math.min(r.width/W,r.height/H),ox=(r.width-W*sc)/2,oy=(r.height-H*sc)/2;return{x:(e.clientX-r.left-ox)/sc,y:(e.clientY-r.top-oy)/sc}}
+function txt(c,t,x,y,size,color,stroke=null,w=800){c.save();c.font=`${w} ${size}px "Nunito", sans-serif`;c.textAlign='center';c.textBaseline='middle';if(stroke){c.lineWidth=size/4;c.strokeStyle=stroke;c.lineJoin='round';c.strokeText(t,x,y)}c.fillStyle=color;c.fillText(t,x,y);c.restore()}
+function grid(c,W,H){c.fillStyle='#fbfffd';c.fillRect(0,0,W,H);c.strokeStyle='rgba(13,148,136,.10)';c.lineWidth=1;for(let x=0;x<=W;x+=25){c.beginPath();c.moveTo(x,0);c.lineTo(x,H);c.stroke()}for(let y=0;y<=H;y+=25){c.beginPath();c.moveTo(0,y);c.lineTo(W,y);c.stroke()}}
+const normA=a=>{while(a>Math.PI)a-=2*Math.PI;while(a<=-Math.PI)a+=2*Math.PI;return a};
+/* visual angle (y up) from point p to q */
+const va=(p,q)=>Math.atan2(-(q.y-p.y),q.x-p.x);
+/* SVG sector, visual degrees (counter-clockwise, y up) */
+function sector(cx,cy,r,a0,a1){const p=a=>[cx+r*Math.cos(a*D2R),cy-r*Math.sin(a*D2R)];const [x0,y0]=p(a0),[x1,y1]=p(a1);return `M${cx} ${cy} L${x0.toFixed(1)} ${y0.toFixed(1)} A${r} ${r} 0 ${a1-a0>180?1:0} 0 ${x1.toFixed(1)} ${y1.toFixed(1)} Z`}
+function fb(id,ok,msg){const f=$(id);f.className='feedback '+(ok?'ok':'no');f.textContent=msg}
+function readNum(inp){const v=parseInt(String(inp.value).replace(/[^\d-]/g,''),10);return isNaN(v)?null:v}
+
+/* ---------- Slides ---------- */
+const slides=[...document.querySelectorAll('.slide')];const dots=$('dots');let cur=0;
+const stepChips=[...document.querySelectorAll('#steps span')];
+slides.forEach((s,i)=>{const b=document.createElement('button');b.className='dot';b.textContent=i+1;b.title=s.dataset.name;b.onclick=()=>go(i);dots.appendChild(b)});
+function go(i){
+  cur=clamp(i,0,slides.length-1);
+  slides.forEach((s,j)=>s.classList.toggle('active',j===cur));
+  [...dots.children].forEach((d,j)=>{d.classList.toggle('on',j===cur);d.classList.toggle('done',j<cur)});
+  const s=slides[cur],st=+s.dataset.step;
+  stepChips.forEach((c,j)=>{c.classList.toggle('on',j===st);c.classList.toggle('done',j<st)});
+  $('stageName').textContent=s.dataset.name;$('sheetNo').textContent='Алхам '+(cur+1)+'/'+slides.length;
+  const notes=s.dataset.notes.split('|');
+  $('tnList').innerHTML='<li>⏱ Зөвлөмж хугацаа: ≈'+s.dataset.min+' мин</li>'+notes.map(t=>'<li>'+t+'</li>').join('');
+  $('prevBtn').disabled=cur===0;$('nextBtn').textContent=cur===slides.length-1?'🏁 Төгсгөл':'Дараах ▶';
+  if(s.contains($('tri')))tDraw();
+  if(s.contains($('poly')))dDraw();
+  if(s.contains($('cmp')))cmpShow();
+}
+$('prevBtn').onclick=()=>go(cur-1);$('nextBtn').onclick=()=>go(cur+1);
+document.addEventListener('keydown',e=>{
+  const t=e.target;if(t.isContentEditable||t.tagName==='INPUT'||t.tagName==='TEXTAREA')return;
+  if(e.key==='ArrowRight'||e.key==='PageDown')go(cur+1);
+  else if(e.key==='ArrowLeft'||e.key==='PageUp')go(cur-1);
+  else if(e.key==='f'||e.key==='F')toggleFS();
+  else if(e.key==='n'||e.key==='N')toggleNotes();
+});
+function toggleFS(){if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()}else{document.exitFullscreen&&document.exitFullscreen()}}
+function toggleNotes(){$('tnotes').classList.toggle('show')}
+$('fsBtn').onclick=toggleFS;$('notesBtn').onclick=toggleNotes;
+
+/* ---------- Timer ---------- */
+let remain=40*60,running=false,tick=null;
+function drawT(){const a=Math.abs(remain),m=Math.floor(a/60),s=a%60;$('tval').textContent=(remain<0?'+':'')+m+':'+String(s).padStart(2,'0');$('timer').className='timer'+(remain<0?' over':remain<=300?' warn':'')}
+$('tPlay').onclick=()=>{running=!running;$('tPlay').textContent=running?'⏸':'▶';if(running)tick=setInterval(()=>{remain--;drawT()},1000);else clearInterval(tick)};
+$('timer').ondblclick=()=>{remain=40*60;drawT()};drawT();
+
+/* ---------- Editable frames ---------- */
+document.querySelectorAll('[data-k]').forEach(e=>{const k=e.dataset.k;e.textContent=store.get(k)||'';e.addEventListener('input',()=>store.set(k,e.innerText))});
+
+/* ================= 1. Straight angle ================= */
+function sDraw(x){const s=$('sSvg');s.innerHTML='';const O=[260,215];
+  for(let i=0;i<=520;i+=26)el('line',{x1:i,y1:0,x2:i,y2:260,stroke:'rgba(13,148,136,.08)'},s);
+  el('path',{d:sector(O[0],O[1],62,0,x),fill:'rgba(225,29,72,.25)',stroke:'#e11d48','stroke-width':2},s);
+  el('path',{d:sector(O[0],O[1],80,x,180),fill:'rgba(37,99,235,.18)',stroke:'#2563eb','stroke-width':2},s);
+  el('line',{x1:30,y1:O[1],x2:490,y2:O[1],stroke:'#134e4a','stroke-width':5,'stroke-linecap':'round'},s);
+  const ex=O[0]+190*Math.cos(x*D2R),ey=O[1]-190*Math.sin(x*D2R);
+  el('line',{x1:O[0],y1:O[1],x2:ex,y2:ey,stroke:'#5f9a0e','stroke-width':5,'stroke-linecap':'round'},s);
+  el('circle',{cx:O[0],cy:O[1],r:7,fill:'#134e4a'},s);
+  if(x===90)el('rect',{x:O[0],y:O[1]-22,width:22,height:22,fill:'none',stroke:'#134e4a','stroke-width':2},s);
+  const m1=x/2*D2R,m2=(x+180)/2*D2R;
+  el('text',{x:O[0]+105*Math.cos(m1),y:O[1]-105*Math.sin(m1)+8,'text-anchor':'middle','font-size':24,'font-weight':900,fill:'#e11d48'},s,'∠1='+x+'°');
+  el('text',{x:O[0]+125*Math.cos(m2),y:O[1]-125*Math.sin(m2)+8,'text-anchor':'middle','font-size':24,'font-weight':900,fill:'#2563eb'},s,'∠2='+(180-x)+'°');
+  el('text',{x:260,y:250,'text-anchor':'middle','font-size':20,'font-weight':800,fill:'#134e4a'},s,'шулуун шугам = дэлгэмэл өнцөг');
+  $('sFb').textContent=`∠1 + ∠2 = ${x}° + ${180-x}° = 180° ✔`}
+$('sR').oninput=e=>sDraw(+e.target.value);
+$('s90').onclick=()=>{$('sR').value=90;sDraw(90);confetti(30)};
+sDraw(60);
+
+/* ================= 2. Predictions & votes ================= */
+['p4','p5'].forEach(id=>{$(id).oninput=()=>$(id+'v').textContent=$(id).value+'°'});
+(()=>{const a=store.get('m_pa_p4'),b=store.get('m_pa_p5');if(a){$('p4').value=a;$('p4v').textContent=a+'°'}if(b){$('p5').value=b;$('p5v').textContent=b+'°'}if(a)$('pSaved').textContent='📌 Бүртгэсэн: '+a+'°, '+b+'°'})();
+$('pSave').onclick=()=>{store.set('m_pa_p4',$('p4').value);store.set('m_pa_p5',$('p5').value);$('pSaved').textContent='📌 Бүртгэсэн: '+$('p4').value+'°, '+$('p5').value+'°';confetti(30)};
+const VOPT=['180°','270°','360°','400°+'];let votes=[0,0,0,0];
+function vDraw(){const tot=votes.reduce((a,b)=>a+b,0);$('votes').innerHTML=VOPT.map((o,i)=>`<div class="vote"><div class="row" style="gap:4px"><button class="btn sm" data-vi="${i}" style="min-width:76px">${o}</button></div><div class="bar"><i style="width:${tot?votes[i]/tot*100:0}%"></i></div><b>${votes[i]}</b></div>`).join('')+`<div class="row" style="gap:4px;margin-top:2px">${VOPT.map((o,i)=>`<button class="btn ghost sm" data-vm="${i}">−1 ${o}</button>`).join('')}</div>`;
+  $('vTot').textContent='Нийт санал: '+tot;
+  $('votes').querySelectorAll('[data-vi]').forEach(b=>b.onclick=()=>{votes[+b.dataset.vi]++;vDraw()});
+  $('votes').querySelectorAll('[data-vm]').forEach(b=>b.onclick=()=>{const i=+b.dataset.vm;votes[i]=Math.max(0,votes[i]-1);vDraw()})}
+$('vReset').onclick=()=>{votes=[0,0,0,0];vDraw()};vDraw();
+
+/* ================= 3. Tear triangle ================= */
+const tc=$('tri'),tx=tc.getContext('2d'),TW=900,TH=500;
+const PRE=[[{x:220,y:320},{x:660,y:320},{x:470,y:50}],[{x:240,y:320},{x:620,y:320},{x:240,y:70}],[{x:140,y:330},{x:720,y:330},{x:260,y:180}]];
+const T={p:PRE[0].map(o=>({...o})),t:0,anim:null,drag:-1,done:false};
+const TCOL=['#e11d48','#f59e0b','#2563eb'],TFILL=['rgba(225,29,72,.55)','rgba(245,158,11,.6)','rgba(37,99,235,.5)'];
+const TP={x:450,y:470};
+function tInfo(){const p=T.p;return p.map((V,i)=>{const U=p[(i+1)%3],W=p[(i+2)%3];const a1=va(V,U),a2=va(V,W);const d=normA(a2-a1);return{V,start:d>0?a1:a2,span:Math.abs(d)}})}
+function tR(){const p=T.p;const L=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);return Math.min(64,.32*Math.min(L(p[0],p[1]),L(p[1],p[2]),L(p[2],p[0])))}
+function wedge(c,x,y,r,s,span,fill,stroke){c.beginPath();c.moveTo(x,y);c.arc(x,y,r,-s-span,-s);c.closePath();c.fillStyle=fill;c.fill();c.strokeStyle=stroke;c.lineWidth=2.5;c.stroke()}
+function tDraw(){const c=tx;grid(c,TW,TH);const I=tInfo(),R=tR(),p=T.p,k=ease(T.t);
+  const deg=I.map(o=>o.span/D2R);const A=Math.round(deg[0]),B=Math.round(deg[1]),C=180-A-B;const lab=[A,B,C];
+  $('tA').textContent=A+'°';$('tB').textContent=B+'°';$('tC').textContent=C+'°';
+  // triangle body
+  c.beginPath();c.moveTo(p[0].x,p[0].y);c.lineTo(p[1].x,p[1].y);c.lineTo(p[2].x,p[2].y);c.closePath();c.fillStyle='#d5f3ec';c.fill();c.strokeStyle='#0f766e';c.lineWidth=4;c.stroke();
+  // target line
+  c.save();c.setLineDash([10,8]);c.strokeStyle='rgba(19,78,74,.45)';c.lineWidth=3;c.beginPath();c.moveTo(TP.x-200,TP.y);c.lineTo(TP.x+200,TP.y);c.stroke();c.restore();
+  const tgt=[Math.PI-I[0].span,Math.PI-I[0].span-I[1].span,0];
+  I.forEach((o,i)=>{
+    if(T.t>0)wedge(c,o.V.x,o.V.y,R,o.start,o.span,'#ffffff','rgba(15,118,110,.4)');
+    const x=o.V.x+(TP.x-o.V.x)*k,y=o.V.y+(TP.y-o.V.y)*k,s=o.start+normA(tgt[i]-o.start)*k;
+    wedge(c,x,y,R,s,o.span,TFILL[i],TCOL[i]);
+    const m=s+o.span/2,lr=T.t>.98?R+22:R+26;
+    if(T.t===0||T.t>.98)txt(c,(T.t>.98?'∠':'∠')+(i+1)+(T.t>.98?'':' = '+lab[i]+'°'),x+lr*Math.cos(m),y-lr*Math.sin(m),T.t>.98?20:22,TCOL[i],'#fff');
+  });
+  p.forEach((V,i)=>{c.beginPath();c.arc(V.x,V.y,9,0,7);c.fillStyle=T.drag===i?'#84cc16':'#134e4a';c.fill()});
+  if(T.t>.98){c.strokeStyle='#134e4a';c.lineWidth=4;c.beginPath();c.moveTo(TP.x-200,TP.y);c.lineTo(TP.x+200,TP.y);c.stroke();
+    txt(c,`${A}° + ${B}° + ${C}° = 180°`,TP.x+0,TP.y-R-58,26,'#134e4a','#fff',900)}
+}
+function tAnim(dir){if(T.anim)cancelAnimationFrame(T.anim);const t0=performance.now(),from=T.t,to=dir;
+  const step=now=>{const k=clamp((now-t0)/1400,0,1);T.t=from+(to-from)*k;tDraw();if(k<1)T.anim=requestAnimationFrame(step);else{T.anim=null;if(to===1){$('tFb').textContent='🎉 3 булан нийлээд шулуун шугам — дэлгэмэл өнцөг 180° боллоо!';if(!T.done){T.done=true;confetti(70)}else confetti(25)}}};T.anim=requestAnimationFrame(step)}
+$('tTear').onclick=()=>tAnim(1);
+$('tBack').onclick=()=>{$('tFb').textContent='';tAnim(0)};
+document.querySelectorAll('[data-tt]').forEach(b=>b.onclick=()=>{T.p=PRE[+b.dataset.tt].map(o=>({...o}));T.t=0;$('tFb').textContent='';document.querySelectorAll('[data-tt]').forEach(x=>x.classList.toggle('on',x===b));tDraw()});
+tc.addEventListener('pointerdown',e=>{if(T.t>0)return;const q=cPos(tc,e,TW,TH);T.drag=T.p.findIndex(V=>Math.hypot(V.x-q.x,V.y-q.y)<30);if(T.drag>=0){tc.setPointerCapture(e.pointerId);tDraw()}});
+tc.addEventListener('pointermove',e=>{if(T.drag<0)return;const q=cPos(tc,e,TW,TH);T.p[T.drag]={x:clamp(q.x,30,TW-30),y:clamp(q.y,25,350)};tDraw()});
+tc.addEventListener('pointerup',()=>{T.drag=-1;tDraw()});
+/* 229 missing angle */
+let M={a:50,b:30};
+function mNew(){do{M.a=ri(4,22)*5;M.b=ri(4,22)*5}while(M.a+M.b>165);$('mQ').innerHTML=`<span class="a1">∠1 = ${M.a}°</span>, <span class="a2">∠2 = ${M.b}°</span>, <span class="a3">∠3 = ?</span>`;$('mIn').value='';$('mIn').className='inp';$('mFb').textContent=''}
+$('mNew').onclick=mNew;
+$('mChk').onclick=()=>{const v=readNum($('mIn')),a=180-M.a-M.b;if(v===a){$('mIn').className='inp ok';fb('mFb',true,`🎉 Зөв! 180° − ${M.a}° − ${M.b}° = ${a}°`);confetti(30)}else{$('mIn').className='inp no';fb('mFb',false,'🤔 180°-аас хоёр өнцгийг хасаарай.')}};
+mNew();
+
+/* ================= 4. Diagonals ================= */
+const dc=$('poly'),dx=dc.getContext('2d'),DW=900,DH=520;
+const P={n:4,v:[],sel:0,diag:0,anim:null,drag:-1,moved:false,rows:{}};
+const TRI_COL=['rgba(13,148,136,.28)','rgba(132,204,22,.35)','rgba(37,99,235,.22)','rgba(245,158,11,.3)','rgba(124,58,237,.22)','rgba(225,29,72,.22)'];
+function pGen(n){P.n=n;P.sel=0;P.diag=0;const st=2*Math.PI/n;P.v=[];for(let i=0;i<n;i++){const a=-Math.PI/2+i*st+rnd(-.22,.22)*st;P.v.push({x:450+330*Math.cos(a),y:265+205*Math.sin(a)})}
+  document.querySelectorAll('#nBtns button').forEach(b=>b.classList.toggle('on',+b.dataset.n===n));dDraw()}
+function convex(){const v=P.v,n=v.length;let sg=0;for(let i=0;i<n;i++){const a=v[i],b=v[(i+1)%n],c=v[(i+2)%n];const cr=(b.x-a.x)*(c.y-b.y)-(b.y-a.y)*(c.x-b.x);if(Math.abs(cr)<1)return false;const s=Math.sign(cr);if(!sg)sg=s;else if(s!==sg)return false}return true}
+function angles(){const v=P.v,n=v.length;return v.map((V,i)=>{const A=v[(i-1+n)%n],B=v[(i+1)%n];const a1=Math.atan2(A.y-V.y,A.x-V.x),a2=Math.atan2(B.y-V.y,B.x-V.x);return Math.abs(normA(a2-a1))/D2R})}
+function dDraw(){const c=dx,v=P.v,n=P.n;grid(c,DW,DH);const cx=convex();
+  // triangles
+  const full=Math.floor(P.diag);
+  for(let k=0;k<n-2;k++){if(k>full)break;const a=v[P.sel],b=v[(P.sel+k+1)%n],d=v[(P.sel+k+2)%n];
+    if(k===n-3&&P.diag<n-3+.999)continue;
+    if(k<n-3&&k>=P.diag)continue;
+    c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.lineTo(d.x,d.y);c.closePath();c.fillStyle=TRI_COL[k%6];c.fill();
+    txt(c,String(k+1),(a.x+b.x+d.x)/3,(a.y+b.y+d.y)/3,34,'#134e4a','#fff',900)}
+  // outline
+  c.beginPath();v.forEach((V,i)=>i?c.lineTo(V.x,V.y):c.moveTo(V.x,V.y));c.closePath();c.strokeStyle=cx?'#0f766e':'#dc2626';c.lineWidth=4;c.stroke();
+  // diagonals
+  for(let k=2;k<=n-2;k++){const idx=k-2;if(P.diag<=idx)break;const f=clamp(P.diag-idx,0,1),a=v[P.sel],b=v[(P.sel+k)%n];
+    c.strokeStyle='#5f9a0e';c.lineWidth=4;c.setLineDash([12,7]);c.beginPath();c.moveTo(a.x,a.y);c.lineTo(a.x+(b.x-a.x)*f,a.y+(b.y-a.y)*f);c.stroke();c.setLineDash([])}
+  // angle labels
+  const ang=angles();const gx=v.reduce((s,V)=>s+V.x,0)/n,gy=v.reduce((s,V)=>s+V.y,0)/n;
+  v.forEach((V,i)=>{const dd=Math.hypot(gx-V.x,gy-V.y)||1;if(cx)txt(c,Math.round(ang[i])+'°',V.x+(gx-V.x)/dd*44,V.y+(gy-V.y)/dd*44,19,'#0f766e','#fff');
+    c.beginPath();c.arc(V.x,V.y,i===P.sel?14:10,0,7);c.fillStyle=i===P.sel?'#84cc16':'#134e4a';c.fill();if(i===P.sel){c.strokeStyle='#134e4a';c.lineWidth=3;c.stroke()}});
+  const sum=Math.round(ang.reduce((a,b)=>a+b,0));
+  $('dN').textContent=n;
+  const doneD=P.diag>=n-3+.999&&!P.anim;
+  $('dT').textContent=doneD?(n-2):'?';$('dS').textContent=doneD?((n-2)*180+'°'):'?';
+  $('dRec').disabled=!(doneD&&cx);
+  $('dMsg').innerHTML=!cx?'⚠️ Олон өнцөгт гүдгэр биш боллоо — оройг гадагш чирээрэй.':doneD?`✅ ${n-2} гурвалжин × 180° = <b>${(n-2)*180}°</b><br><span class="muted">Транспортироор: ${ang.map(a=>Math.round(a)).join(' + ')} ≈ ${sum}°</span>`:'👆 Нэг оройг дарж сонго (ногоон), дараа нь «📏 Диагональ татах».'}
+(()=>{for(let n=3;n<=8;n++){const b=document.createElement('button');b.className='btn ghost sm';b.textContent=n;b.dataset.n=n;b.onclick=()=>pGen(n);$('nBtns').appendChild(b)}})();
+$('dGo').onclick=()=>{if(!convex())return;if(P.anim)cancelAnimationFrame(P.anim);const goal=P.n-3+1;P.diag=0;const t0=performance.now();
+  const step=now=>{P.diag=Math.min(goal,(now-t0)/700);if(P.diag<goal){P.anim=requestAnimationFrame(step)}else{P.anim=null}dDraw()};
+  if(P.n===3){P.diag=1;dDraw();return}P.anim=requestAnimationFrame(step)};
+$('dRec').onclick=()=>{P.rows[P.n]=[P.n-2,(P.n-2)*180];dTab();confetti(35)};
+function dTab(){const ks=Object.keys(P.rows).map(Number).sort((a,b)=>a-b);$('dTab').innerHTML=ks.length?ks.map(k=>`<tr><td>${k}</td><td>${P.rows[k][0]}</td><td>${P.rows[k][1]}°</td></tr>`).join(''):'<tr><td colspan="3" class="muted">Хоосон — туршилтаа хийгээрэй</td></tr>'}
+dc.addEventListener('pointerdown',e=>{const q=cPos(dc,e,DW,DH);P.drag=P.v.findIndex(V=>Math.hypot(V.x-q.x,V.y-q.y)<28);P.moved=false;if(P.drag>=0)dc.setPointerCapture(e.pointerId)});
+dc.addEventListener('pointermove',e=>{if(P.drag<0)return;const q=cPos(dc,e,DW,DH);const V=P.v[P.drag];if(!P.moved&&Math.hypot(V.x-q.x,V.y-q.y)<4)return;P.moved=true;P.v[P.drag]={x:clamp(q.x,20,DW-20),y:clamp(q.y,20,DH-20)};dDraw()});
+dc.addEventListener('pointerup',()=>{if(P.drag>=0&&!P.moved){P.sel=P.drag;P.diag=0}P.drag=-1;dDraw()});
+pGen(4);dTab();
+
+/* ================= 5. Data table ================= */
+const NAMES={3:'Гурвалжин',4:'Дөрвөн өнцөгт',5:'Таван өнцөгт',6:'Зургаан өнцөгт',7:'Долоон өнцөгт',8:'Найман өнцөгт'};
+(()=>{const tb=$('gTab').querySelector('tbody');for(let n=3;n<=8;n++){const tr=document.createElement('tr');
+  tr.innerHTML=`<td style="text-align:left">${NAMES[n]}</td><td>${n}</td><td><input class="inp" id="gt${n}" inputmode="numeric"></td><td><input class="inp" id="gs${n}" inputmode="numeric"></td><td><span class="plus" id="gp${n}">${n>3?'+180°':''}</span></td>`;tb.appendChild(tr)}
+  $('gt3').value=1;$('gs3').value=180;$('gt3').readOnly=$('gs3').readOnly=true})();
+$('gFill').onclick=()=>{let c=0;for(const k in P.rows){$('gt'+k).value=P.rows[k][0];$('gs'+k).value=P.rows[k][1];c++}fb('gFb',true,c?`📥 Туршилтаас ${c} мөр хуулав.`:'📭 Туршилт 2-т тэмдэглэл алга — эхлээд туршаарай.')};
+$('gChk').onclick=()=>{let ok=0;for(let n=3;n<=8;n++){const t=$('gt'+n),s=$('gs'+n);const a=readNum(t)===n-2,b=readNum(s)===(n-2)*180;t.className='inp '+(a?'ok':'no');s.className='inp '+(b?'ok':'no');if(a&&b)ok++}
+  if(ok===6){fb('gFb',true,'🎉 Бүх өгөгдөл зөв! Баруун баганаас зүй тогтлыг хар.');for(let n=4;n<=8;n++)$('gp'+n).classList.add('show');confetti(60)}else fb('gFb',false,`✔ ${ok}/6 мөр зөв. Улаан нүдийг засаарай.`)};
+function optGroup(id,done){document.querySelectorAll('#'+id+' button').forEach(b=>b.onclick=()=>{const ok=b.dataset.v==='1';b.classList.add(ok?'ok':'no');if(ok)done(b)})}
+optGroup('o1',()=>{fb('oFb',true,'✔ Гурвалжны тоо = n − 2');confetti(25)});
+optGroup('o2',()=>{fb('oFb',true,'🎉 Нийлбэр = (n − 2) × 180° — бид дүрэм нээлээ!');confetti(70)});
+
+/* ================= 6. Conclusion ================= */
+function cmpShow(){const a=store.get('m_pa_p4'),b=store.get('m_pa_p5');
+  $('cmp').innerHTML=a?`💭 Таны таамаглал: дөрвөн өнцөгт <b>${a}°</b> → бодит <b>360°</b> ${+a===360?'🎯':''}; таван өнцөгт <b>${b}°</b> → бодит <b>540°</b> ${+b===540?'🎯':''}`:'💭 Таамаглал бүртгэгдээгүй байна (2-р хуудас).'}
+$('rGo').onclick=()=>{const n=readNum($('rN'));const g=$('gear');g.classList.remove('spin');void g.offsetWidth;g.classList.add('spin');
+  if(n===null||n<3||n>50){$('rOut').innerHTML='<span style="color:var(--red)">n нь 3-аас 50 хүртэлх тоо байх ёстой 🙂</span>';return}
+  $('rOut').innerHTML=`📏 Гурвалжин: ${n} − 2 = <b>${n-2}</b><br>🧮 Нийлбэр: ${n-2} × 180° = <b>${(n-2)*180}°</b>`};
+$('rN').addEventListener('keydown',e=>{if(e.key==='Enter')$('rGo').click()});
+
+/* ================= 7. Application ================= */
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('[data-pane]').forEach(p=>p.classList.toggle('on',p.dataset.pane===b.dataset.tab))});
+/* ⭐ quadrilateral */
+let Q={a:[90,90,90,90]},qScore=0;
+const QP=[[70,240],[390,255],[340,60],[130,40]];
+function qNew(){let a,b,c,d;do{a=ri(12,26)*5;b=ri(12,26)*5;c=ri(12,26)*5;d=360-a-b-c}while(d<45||d>150);Q.a=[a,b,c,d];Q.miss=ri(0,3);
+  const s=$('qSvg');s.innerHTML='';el('polygon',{points:QP.map(p=>p.join(',')).join(' '),fill:'#d5f3ec',stroke:'#0f766e','stroke-width':4},s);
+  const cols=['#e11d48','#c27803','#2563eb','#7c3aed'];const g=[232,149];
+  QP.forEach((p,i)=>{const dx=g[0]-p[0],dy=g[1]-p[1],L=Math.hypot(dx,dy);el('circle',{cx:p[0],cy:p[1],r:6,fill:'#134e4a'},s);
+    el('text',{x:p[0]+dx/L*58,y:p[1]+dy/L*58+9,'text-anchor':'middle','font-size':28,'font-weight':900,fill:cols[i]},s,i===Q.miss?'?':Q.a[i]+'°')});
+  el('text',{x:230,y:292,'text-anchor':'middle','font-size':15,fill:'#4a6a64'},s,'Зураг масштабгүй');
+  $('qIn').value='';$('qIn').className='inp';$('qFb').textContent=''}
+$('qNew').onclick=qNew;
+$('qChk').onclick=()=>{const v=readNum($('qIn')),a=Q.a[Q.miss],o=Q.a.filter((_,i)=>i!==Q.miss);
+  if(v===a){$('qIn').className='inp ok';qScore++;$('qScore').textContent=qScore;fb('qFb',true,`🎉 360° − (${o.join('° + ')}°) = ${a}°`);confetti(30);setTimeout(qNew,1800)}else{$('qIn').className='inp no';fb('qFb',false,`🤔 Эхлээд ${o.join(' + ')}-г нэм, дараа нь 360-аас хас.`)}};
+qNew();
+/* ⭐⭐ / ⭐⭐⭐ input checks */
+const HINT={b1:'90° + 30° + ? = 180°',b2:'(180° − 40°) : 2',b4:'1260 : 180 = ? → n = ? + 2'};
+document.querySelectorAll('[data-chk]').forEach(b=>b.onclick=()=>{const id=b.dataset.chk,inp=$(id),v=readNum(inp),a=+b.dataset.a;
+  if(v===a){inp.className='inp ok';fb(id+'f',true,'✔ Зөв!');confetti(25)}else{inp.className='inp no';fb(id+'f',false,'💡 '+HINT[id])}});
+optGroup('b3',()=>{fb('b3f',true,'✔ Болохгүй: 90 + 48 + 45 = 183° ≠ 180°');confetti(25)});
+document.querySelectorAll('#b3 button[data-v="0"]').forEach(b=>b.addEventListener('click',()=>fb('b3f',false,'🤔 Гурвуулаа нэмээд 180°-тай харьцуул.')));
+/* ⭐⭐⭐ regular polygon */
+const RN=[5,6,8,9,10,12],RNAME={5:'таван',6:'зургаан',8:'найман',9:'есөн',10:'арван',12:'арван хоёр'};let rn=6;
+function rNew(){let k;do{k=RN[ri(0,RN.length-1)]}while(k===rn);rn=k;const s=$('rSvg');s.innerHTML='';
+  const pts=[];for(let i=0;i<rn;i++){const a=-Math.PI/2+i*2*Math.PI/rn;pts.push([150+105*Math.cos(a),135+105*Math.sin(a)])}
+  el('polygon',{points:pts.map(p=>p.map(v=>v.toFixed(1)).join(',')).join(' '),fill:'#effbd9',stroke:'#5f9a0e','stroke-width':4},s);
+  pts.forEach(p=>el('circle',{cx:p[0],cy:p[1],r:5,fill:'#134e4a'},s));
+  el('text',{x:150,y:145,'text-anchor':'middle','font-size':40,'font-weight':900,fill:'#134e4a'},s,'n = '+rn);
+  $('rQ').innerHTML=`Зөв <b>${RNAME[rn]}</b> өнцөгтийн нэг өнцөг хэдэн градус вэ?`;$('rIn').value='';$('rIn').className='inp';$('rFb').textContent=''}
+$('rNew').onclick=rNew;$('rHint').onclick=()=>$('rH').classList.toggle('show');
+$('rChk').onclick=()=>{const v=readNum($('rIn')),S=(rn-2)*180,a=S/rn;
+  if(v===a){$('rIn').className='inp ok';fb('rFb',true,`🏆 (${rn} − 2) × 180° = ${S}°; ${S}° : ${rn} = ${a}°`);confetti(60)}else{$('rIn').className='inp no';fb('rFb',false,v===S?'👍 Энэ нь нийлбэр! Одоо '+rn+'-д хуваа.':'🤔 💡 сэжүүрийг хараарай.')}};
+rNew();
+
+/* ================= 8. Exit check ================= */
+const EX=[
+  {q:'1. Таван өнцөгтийн дотоод өнцгийн нийлбэр?',o:['450°','540°','900°','360°'],a:1},
+  {q:'2. 28°, 75°, 80°-ын өнцөгтэй гурвалжин байж болох уу?',o:['Болно','Болохгүй'],a:1},
+  {q:'3. Зургаан өнцөгтийн нэг оройгоос диагональ татахад хэдэн гурвалжин үүсэх вэ?',o:['3','4','5','6'],a:1},
+  {q:'4. Дөрвөн өнцөгтийн 3 өнцөг 90°, 90°, 120°. Дөрөв дэх өнцөг?',o:['60°','80°','90°','120°'],a:0}];
+const exState=EX.map(()=>null);
+(()=>{EX.forEach((x,i)=>{const d=document.createElement('div');d.className='mc';d.innerHTML=`<div class="q">${x.q}</div><div class="opts">${x.o.map((o,j)=>`<button data-j="${j}">${o}</button>`).join('')}</div>`;
+  d.querySelectorAll('button').forEach(b=>b.onclick=()=>{if(exState[i]!==null)return;const j=+b.dataset.j;exState[i]=j===x.a;b.classList.add(j===x.a?'ok':'no');if(j!==x.a)d.querySelector(`[data-j="${x.a}"]`).classList.add('ok');exUpd()});$('exit').appendChild(d)})})();
+function exUpd(){const n=exState.filter(v=>v!==null).length,ok=exState.filter(v=>v).length;if(n<EX.length){fb('exFb',true,`🧪 ${ok}/${n} зөв…`);return}
+  fb('exFb',ok>=3,ok===4?'🏆 4/4 — Жинхэнэ эрдэмтэн!':ok>=3?`👍 ${ok}/4 — Сайн судлаач!`:`📚 ${ok}/4 — Дүрмээ дахин давтъя: (n − 2) × 180°`);if(ok===4)confetti(100)}
+(()=>{const b=[...document.querySelectorAll('#stars3 button')];const set=n=>{b.forEach((x,i)=>x.classList.toggle('on',i<n));store.set('m_pa_stars',n)};b.forEach((x,i)=>x.onclick=()=>{set(i+1);if(i===2)confetti(60)});set(+(store.get('m_pa_stars')||0))})();
+
+/* ================= Confetti: bubbles & triangles ================= */
+const cf=$('confetti'),cfx=cf.getContext('2d');let parts=[],cRun=false;
+function confetti(n){cf.width=innerWidth;cf.height=innerHeight;const cols=['#0d9488','#84cc16','#2563eb','#f59e0b','#e11d48','#14b8a6'];
+  for(let i=0;i<n;i++)parts.push({x:innerWidth/2+rnd(-160,160),y:innerHeight*.5,vx:rnd(-7,7),vy:-rnd(5,18),s:rnd(8,15),c:cols[i%6],r:rnd(0,6),k:i%2,life:120});
+  if(!cRun){cRun=true;requestAnimationFrame(cStep)}}
+function cStep(){cfx.clearRect(0,0,cf.width,cf.height);parts.forEach(p=>{p.vy+=.38;p.x+=p.vx;p.y+=p.vy;p.r+=.12;p.life--;cfx.save();cfx.translate(p.x,p.y);cfx.rotate(p.r);cfx.strokeStyle=p.c;cfx.fillStyle=p.c;cfx.lineWidth=3;
+  if(p.k){cfx.beginPath();cfx.arc(0,0,p.s/2,0,7);cfx.stroke()}else{cfx.beginPath();cfx.moveTo(0,-p.s/2);cfx.lineTo(p.s/2,p.s/2);cfx.lineTo(-p.s/2,p.s/2);cfx.closePath();cfx.fill()}cfx.restore()});
+  parts=parts.filter(p=>p.life>0&&p.y<cf.height+20);if(parts.length)requestAnimationFrame(cStep);else{cRun=false;cfx.clearRect(0,0,cf.width,cf.height)}}
+
+go(0);
+</script>
+</body>
+</html>
